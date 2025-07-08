@@ -71,10 +71,21 @@
 
         // --- 3. 计算最终分数 ---
         
-        // 直接用比例加权求和
-        const final_score = (adjusted_n[1] * weights[1] + adjusted_n[2] * weights[2] + 
-                            adjusted_n[3] * weights[3] + adjusted_n[4] * weights[4] + 
-                            adjusted_n[5] * weights[5]) / 100;
+        // 对比例进行排序并调整权重
+        const sortedByPercent = Object.entries(adjusted_n)
+            .map(([star, percent]) => ({ star: parseInt(star), percent, weight: weights[star] }))
+            .sort((a, b) => b.percent - a.percent);
+        
+        // 根据排序调整权重：最高+0.1，第二+0.03，第三不变，第四-0.3，第五-0.1
+        const weightAdjustments = [0.1, 0.03, 0, -0.3, -0.1];
+        sortedByPercent.forEach((item, index) => {
+            item.adjustedWeight = item.weight + weightAdjustments[index];
+        });
+        
+        // 计算调整后的加权分数
+        const final_score = sortedByPercent.reduce((sum, item) => {
+            return sum + (item.percent * item.adjustedWeight);
+        }, 0) / 100;
 
         return {
             score: final_score,
