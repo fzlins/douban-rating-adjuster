@@ -76,8 +76,30 @@
             .map(([star, percent]) => ({ star: parseInt(star), percent, weight: weights[star] }))
             .sort((a, b) => b.percent - a.percent);
         
-        // 根据排序调整权重：最高+0.1，第二+0.03，第三不变，第四-0.3，第五-0.1
-        const weightAdjustments = [0.1, 0.03, 0, -0.3, -0.1];
+        // 根据50%分位数所在星级动态调整权重
+        let cumulative = 0;
+        let medianStar = 3;
+        for (const item of sortedByPercent) {
+            cumulative += item.percent;
+            if (cumulative >= 50) {
+                medianStar = item.star;
+                break;
+            }
+        }
+        
+        let weightAdjustments;
+        if (medianStar === 5) {
+            weightAdjustments = [0.1, 0.03, 0, -0.03, -0.1];
+        } else if (medianStar === 4) {
+            weightAdjustments = [0.5, 0.015, 0, -0.015, -0.5];
+        } else if (medianStar === 3) {
+            weightAdjustments = [0.1, 0.03, 0, -0.03, -0.1];
+        } else if (medianStar === 2) {
+            weightAdjustments = [-0.5, -0.015, 0, 0.015, 0.5];
+        } else if (medianStar === 1) {
+            weightAdjustments = [-0.1, -0.03, 0, 0.03, 0.1];
+        }
+        
         sortedByPercent.forEach((item, index) => {
             item.adjustedWeight = item.weight + weightAdjustments[index];
         });
