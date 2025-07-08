@@ -1,0 +1,15 @@
+{
+  "manifest_version": 3,
+  "name": "豆瓣评分调整器",
+  "version": "1.0",
+  "description": "基于数据健康度调整豆瓣电影评分",
+  "permissions": ["activeTab"],
+  "content_scripts": [
+    {
+      "matches": ["*://movie.douban.com/subject/*"],
+      "js": ["content.js"],
+      "css": ["content.css"],
+      "run_at": "document_idle"
+    }
+  ]
+}
